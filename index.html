@@ -353,19 +353,15 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-4 rounded-lg border border-gray-200 h-full flex flex-col">
+               <div class="bg-white p-4 rounded-lg border border-gray-200 h-full flex flex-col">
                     <div class="flex justify-between items-center mb-2">
                         <h4 class="font-semibold text-gray-800">ฐานข้อมูลบุคลากร (Whitelist เลขบัตร)</h4>
-                        <button onclick="openIDCardModal()" class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
-                            <i class="fa-solid fa-plus mr-1"></i> เพิ่ม
-                        </button>
+                        <button onclick="openIDCardModal()" class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"><i class="fa-solid fa-plus mr-1"></i> เพิ่ม</button>
                     </div>
                     <p class="text-xs text-gray-500 mb-3">ระบบใช้ตรวจสอบตอนครูมาสมัครสมาชิกใหม่ หากเลขไม่ตรงจะไม่สามารถสมัครได้</p>
-                   <div class="overflow-x-auto border border-gray-100 rounded max-h-60 overflow-y-auto">
+                    <div class="overflow-y-auto flex-1 border border-gray-100 rounded max-h-64">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
-                                <tr><th class="px-3 py-2 text-left">เลขบัตรฯ</th><th class="px-3 py-2 text-left">ชื่ออ้างอิง</th><th class="px-3 py-2 text-right">จัดการ</th></tr>
-                            </thead>
+                            <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm"><tr><th class="px-3 py-2 text-left">เลขบัตรฯ</th><th class="px-3 py-2 text-left">ชื่ออ้างอิง</th><th class="px-3 py-2 text-right">จัดการ</th></tr></thead>
                             <tbody id="idcard-table-body" class="bg-white divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
