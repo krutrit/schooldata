@@ -11,28 +11,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* แก้ไขและปรับปรุง CSS สำหรับภาพพื้นหลัง ป้องกันเว็บขาด/ค้าง */
-        * {
-            box-sizing: border-box;
-        }
-        
+        /* แก้ไขและปรับปรุง CSS ตามที่ต้องการเป๊ะๆ 100% */
         body {
+            box-sizing: border-box;
+            background: url("https://cdn11.bigcommerce.com/s-hvyeu5c5mp/images/stencil/1280w/carousel/20/Junior-Great-Books-New-Digital-Classroom-2-1.jpg") no-repeat center center fixed;
+            background-size: cover;
+            backdrop-filter: blur(5px);
+            width: 100%;
+            height: 100%;
             margin: 0;
             padding: 0;
             font-family: 'Prompt', sans-serif;
-            min-height: 100vh;
-            position: relative;
-        }
-
-        /* สร้างภาพพื้นหลังแบบเบลอที่ลื่นไหลและไม่พังเมื่อเลื่อนจอ */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url("https://cdn11.bigcommerce.com/s-hvyeu5c5mp/images/stencil/1280w/carousel/20/Junior-Great-Books-New-Digital-Classroom-2-1.jpg") no-repeat center center;
-            background-size: cover;
-            filter: blur(5px);
-            z-index: -1; /* ให้อยู่หลังสุด */
         }
 
         /* ซ่อน Scrollbar แต่ยังเลื่อนได้ */
@@ -170,8 +159,19 @@
             <i class="fa-solid fa-book-open absolute -bottom-10 -right-10 text-9xl text-white opacity-10 rotate-12"></i>
             <i class="fa-solid fa-pencil absolute top-10 left-10 text-6xl text-white opacity-10 -rotate-45"></i>
         </div>
-        <div class="mb-6 flex justify-between items-end"><h2 class="text-xl font-bold text-gray-800 border-l-4 border-indigo-500 pl-3">ผลการค้นหางานแก้ผลการเรียน</h2></div>
-        <div id="public-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <!-- เริ่มส่วนที่แก้: จัดการการแสดงผลส่วนที่ 2 (ปิดเปิดด้วยสวิตช์) -->
+        <div id="public-section-2">
+            <div class="mb-6 flex justify-between items-end"><h2 class="text-xl font-bold text-gray-800 border-l-4 border-indigo-500 pl-3">ผลการค้นหางานแก้ผลการเรียน</h2></div>
+            <div id="public-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <div id="public-section-closed" class="hide-section text-center py-16 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 mt-8">
+            <i class="fa-solid fa-lock text-6xl text-gray-400 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-700">ปิดการแสดงผลชั่วคราว</h2>
+            <p class="text-gray-500 mt-2">ผู้ดูแลระบบได้ปิดการแสดงผลใบงานแก้ผลการเรียนในหน้าแรกขณะนี้</p>
+        </div>
+        <!-- สิ้นสุดส่วนที่แก้ -->
     </main>
 
     <main id="view-user" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hide-section">
@@ -243,7 +243,6 @@
                         </div>
                     </div>
 
-                    <!-- เริ่มส่วนที่แก้: สวิตช์ปิด-เปิด ใบงานแก้ ร. -->
                     <div class="flex items-center justify-between bg-gray-50 p-3 rounded border">
                         <span class="text-sm font-medium text-gray-700">แสดงใบงานแก้ ร. ในหน้าแรก (Public)</span>
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
@@ -251,7 +250,6 @@
                             <label for="toggle-remedial-public" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
                         </div>
                     </div>
-                    <!-- สิ้นสุดส่วนที่แก้ -->
 
                 </div>
 
@@ -396,7 +394,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzUUsdo-FC1yvdXHMbmE-5xeQzZ9D9qCfRN-xSxbCtd0BQRgJVhRUABK2apkI3QNNPwCA/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyaLYSAVpPhT5p4aSst0RLLVVP7GtgDM238aqLt2mvaJBL5m9JouAVxCPHd6vtOtiNixw/exec"; 
 
         const gasErrorHandler = (error) => {
             document.getElementById('loading-overlay').classList.add('hide-section');
@@ -695,7 +693,7 @@
         function renderPublicFiles(files) {
             const container = document.getElementById('public-grid-container');
             if(!files || files.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">ไม่พบเอกสารตามที่ค้นหา</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">ไม่พบเอกสารงานแก้ผลการเรียนตามที่ค้นหา</div>`;
                 return;
             }
             let html = '';
@@ -725,19 +723,29 @@
             container.innerHTML = html;
         }
 
-        // เริ่มส่วนที่แก้: ปรับให้ฟังก์ชันกรองสามาถกรองสวิตช์ปิด/เปิด "ใบงานแก้ผลการเรียน" ได้
+        // เริ่มส่วนที่แก้: ปรับให้ฟังก์ชันกรองสามารถซ่อนส่วนที่ 2 ได้ถ้าสวิตช์ปิด
         function applyPublicFilters() {
+            const isShowRemedial = (globalSettings.showRemedialPublic === true || String(globalSettings.showRemedialPublic) === 'true');
+            
+            const sec2 = document.getElementById('public-section-2');
+            const secClosed = document.getElementById('public-section-closed');
+            
+            // ตรวจสอบว่ามีสวิตช์ถูกเปิดไว้หรือไม่
+            if (!isShowRemedial) {
+                if (sec2) sec2.classList.add('hide-section');
+                if (secClosed) secClosed.classList.remove('hide-section');
+                return; // ไม่ต้องทำกรองและเรนเดอร์ต่อ
+            } else {
+                if (sec2) sec2.classList.remove('hide-section');
+                if (secClosed) secClosed.classList.add('hide-section');
+            }
+
             const search = document.getElementById('filter-search').value.toLowerCase();
             const level = document.getElementById('filter-level').value;
             const term = document.getElementById('filter-term').value;
             const year = document.getElementById('filter-year').value;
 
             let filtered = globalFilesList.filter(f => {
-                // ตรวจสอบสถานะการเปิด/ปิด "ใบงานแก้ผลการเรียน" จากการตั้งค่า
-                const isRemedial = f.type === 'ใบงานแก้ผลการเรียน';
-                const isShowRemedial = (globalSettings.showRemedialPublic === true || String(globalSettings.showRemedialPublic) === 'true');
-                if (isRemedial && !isShowRemedial) return false;
-
                 let matchSearch = f.name.toLowerCase().includes(search) || f.subject.toLowerCase().includes(search) || f.teacherName.toLowerCase().includes(search);
                 let matchLevel = level === "" || f.level === level;
                 let matchTerm = term === "" || f.term == term;
@@ -1025,14 +1033,12 @@
             }
         }
 
-        // เริ่มส่วนที่แก้: ฟังก์ชันบันทึกสวิตช์ปิดเปิดการแสดงใบงานแก้ ร.
         function toggleRemedialVisibility() {
             const isChecked = document.getElementById('toggle-remedial-public').checked;
             globalSettings.showRemedialPublic = isChecked;
             
             const handleRes = () => {
                 showToast(isChecked ? 'เปิดแสดงใบงานแก้ ร. ในหน้าแรกแล้ว' : 'ซ่อนใบงานแก้ ร. ในหน้าแรกแล้ว', isChecked ? 'green' : 'amber');
-                // เรียกให้ฟิลเตอร์หน้าแรกทำงานใหม่ทันทีหลังสลับสวิตช์ (ถ้าแอดมินเข้าไปดูหน้าแรกจะเห็นผลทันที)
                 applyPublicFilters();
             };
 
@@ -1042,7 +1048,6 @@
                 fetchFromGAS('updateSystemSettings', { showRemedialPublic: isChecked }, handleRes);
             }
         }
-        // สิ้นสุดส่วนที่แก้
 
         function renderIDCards(cardsData) {
             try {
