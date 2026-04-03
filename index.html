@@ -11,31 +11,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* แก้ไขและปรับปรุง CSS สำหรับภาพพื้นหลัง ป้องกันเว็บขาด/ค้าง */
-        * {
-            box-sizing: border-box;
-        }
+        /* แก้ไขและปรับปรุง CSS ภาพพื้นหลัง ให้แสดงผลและเบลอได้อย่างถูกต้อง */
+        * { box-sizing: border-box; }
         
-        body {
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            min-height: 100vh;
             margin: 0;
             padding: 0;
-            font-family: 'Prompt', sans-serif;
-            min-height: 100vh;
             position: relative;
         }
 
-        /* สร้างภาพพื้นหลังแบบเบลอที่ลื่นไหลและไม่พังเมื่อเลื่อนจอ */
         body::before {
             content: "";
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
             background: url("https://cdn11.bigcommerce.com/s-hvyeu5c5mp/images/stencil/1280w/carousel/20/Junior-Great-Books-New-Digital-Classroom-2-1.jpg") no-repeat center center;
             background-size: cover;
             filter: blur(5px);
-            z-index: -1; /* ให้อยู่หลังสุด */
+            z-index: -1;
         }
 
-        /* ซ่อน Scrollbar แต่ยังเลื่อนได้ */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -170,8 +166,17 @@
             <i class="fa-solid fa-book-open absolute -bottom-10 -right-10 text-9xl text-white opacity-10 rotate-12"></i>
             <i class="fa-solid fa-pencil absolute top-10 left-10 text-6xl text-white opacity-10 -rotate-45"></i>
         </div>
-        <div class="mb-6 flex justify-between items-end"><h2 class="text-xl font-bold text-gray-800 border-l-4 border-indigo-500 pl-3">ผลการค้นหางานแก้ผลการเรียน</h2></div>
-        <div id="public-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <div id="public-section-2">
+            <div class="mb-6 flex justify-between items-end"><h2 class="text-xl font-bold text-gray-800 border-l-4 border-indigo-500 pl-3">ผลการค้นหางานแก้ผลการเรียน</h2></div>
+            <div id="public-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <div id="public-section-closed" class="hide-section text-center py-16 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 mt-8">
+            <i class="fa-solid fa-lock text-6xl text-gray-400 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-700">ปิดการแสดงผลชั่วคราว</h2>
+            <p class="text-gray-500 mt-2">ผู้ดูแลระบบได้ปิดการแสดงผลใบงานแก้ผลการเรียนในหน้าแรกขณะนี้</p>
+        </div>
     </main>
 
     <main id="view-user" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hide-section">
@@ -243,7 +248,6 @@
                         </div>
                     </div>
 
-                    <!-- เริ่มส่วนที่แก้: สวิตช์ปิด-เปิด ใบงานแก้ ร. -->
                     <div class="flex items-center justify-between bg-gray-50 p-3 rounded border">
                         <span class="text-sm font-medium text-gray-700">แสดงใบงานแก้ ร. ในหน้าแรก (Public)</span>
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
@@ -251,7 +255,6 @@
                             <label for="toggle-remedial-public" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
                         </div>
                     </div>
-                    <!-- สิ้นสุดส่วนที่แก้ -->
 
                 </div>
 
@@ -472,7 +475,15 @@
             
             const handleSettings = (settings) => {
                 try {
-                    if(settings) globalSettings = settings;
+                    // รวมและป้องกันค่า Setting เก่าเขียนทับจนกลายเป็น undefined
+                    if(settings) {
+                        if (settings.teacherCanEdit !== undefined) globalSettings.teacherCanEdit = settings.teacherCanEdit;
+                        if (settings.showRemedialPublic !== undefined) globalSettings.showRemedialPublic = settings.showRemedialPublic;
+                        if (settings.subjects) globalSettings.subjects = settings.subjects;
+                        if (settings.levels) globalSettings.levels = settings.levels;
+                        if (settings.years) globalSettings.years = settings.years;
+                    }
+
                     document.getElementById('toggle-user-edit').checked = (globalSettings.teacherCanEdit === true || String(globalSettings.teacherCanEdit) === 'true');
                     document.getElementById('toggle-remedial-public').checked = (globalSettings.showRemedialPublic === true || String(globalSettings.showRemedialPublic) === 'true');
                     populateDropdowns(); 
@@ -695,7 +706,7 @@
         function renderPublicFiles(files) {
             const container = document.getElementById('public-grid-container');
             if(!files || files.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">ไม่พบเอกสารตามที่ค้นหา</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">ไม่พบเอกสารงานแก้ผลการเรียนตามที่ค้นหา</div>`;
                 return;
             }
             let html = '';
@@ -725,19 +736,27 @@
             container.innerHTML = html;
         }
 
-        // เริ่มส่วนที่แก้: ปรับให้ฟังก์ชันกรองสามาถกรองสวิตช์ปิด/เปิด "ใบงานแก้ผลการเรียน" ได้
         function applyPublicFilters() {
+            const isShowRemedial = (globalSettings.showRemedialPublic === true || String(globalSettings.showRemedialPublic) === 'true');
+            
+            const sec2 = document.getElementById('public-section-2');
+            const secClosed = document.getElementById('public-section-closed');
+            
+            if (!isShowRemedial) {
+                if (sec2) sec2.classList.add('hide-section');
+                if (secClosed) secClosed.classList.remove('hide-section');
+                return;
+            } else {
+                if (sec2) sec2.classList.remove('hide-section');
+                if (secClosed) secClosed.classList.add('hide-section');
+            }
+
             const search = document.getElementById('filter-search').value.toLowerCase();
             const level = document.getElementById('filter-level').value;
             const term = document.getElementById('filter-term').value;
             const year = document.getElementById('filter-year').value;
 
             let filtered = globalFilesList.filter(f => {
-                // ตรวจสอบสถานะการเปิด/ปิด "ใบงานแก้ผลการเรียน" จากการตั้งค่า
-                const isRemedial = f.type === 'ใบงานแก้ผลการเรียน';
-                const isShowRemedial = (globalSettings.showRemedialPublic === true || String(globalSettings.showRemedialPublic) === 'true');
-                if (isRemedial && !isShowRemedial) return false;
-
                 let matchSearch = f.name.toLowerCase().includes(search) || f.subject.toLowerCase().includes(search) || f.teacherName.toLowerCase().includes(search);
                 let matchLevel = level === "" || f.level === level;
                 let matchTerm = term === "" || f.term == term;
@@ -746,7 +765,6 @@
             });
             renderPublicFiles(filtered);
         }
-        // สิ้นสุดส่วนที่แก้
 
         function applyUserFilters() {
             const search = document.getElementById('user-filter-search').value.toLowerCase();
@@ -1008,41 +1026,61 @@
             const isChecked = document.getElementById('toggle-user-edit').checked;
             globalSettings.teacherCanEdit = isChecked;
             
-            const handleRes = () => {
-                showToast(isChecked ? 'เปิดสิทธิ์การแก้ไข/ลบไฟล์ให้ครูแล้ว' : 'ระงับสิทธิ์การแก้ไขไฟล์ของครูแล้ว', isChecked ? 'green' : 'amber');
-                const idcard = localStorage.getItem('docsSys_session_idcard');
-                if (typeof google !== 'undefined' && google.script) {
-                    google.script.run.withFailureHandler(gasErrorHandler).withSuccessHandler(initializeUserUI).getUserData(idcard);
+            const handleRes = (res) => {
+                if (res && res.success) {
+                    showToast(isChecked ? 'เปิดสิทธิ์การแก้ไข/ลบไฟล์ให้ครูแล้ว' : 'ระงับสิทธิ์การแก้ไขไฟล์ของครูแล้ว', isChecked ? 'green' : 'amber');
+                    const idcard = localStorage.getItem('docsSys_session_idcard');
+                    if (typeof google !== 'undefined' && google.script) {
+                        google.script.run.withFailureHandler(gasErrorHandler).withSuccessHandler(initializeUserUI).getUserData(idcard);
+                    } else {
+                        fetchFromGAS('getUserData', idcard, initializeUserUI);
+                    }
                 } else {
-                    fetchFromGAS('getUserData', idcard, initializeUserUI);
+                    showToast('เกิดข้อผิดพลาดในการอัปเดตสถานะ', 'red');
+                    document.getElementById('toggle-user-edit').checked = !isChecked;
+                    globalSettings.teacherCanEdit = !isChecked;
                 }
             };
 
+            const payload = {
+                teacherCanEdit: isChecked,
+                showRemedialPublic: globalSettings.showRemedialPublic
+            };
+
             if (typeof google !== 'undefined' && google.script) {
-                google.script.run.withFailureHandler(gasErrorHandler).withSuccessHandler(handleRes).updateSystemSettings({ teacherCanEdit: isChecked });
+                google.script.run.withFailureHandler(gasErrorHandler).withSuccessHandler(handleRes).updateSystemSettings(payload);
             } else {
-                fetchFromGAS('updateSystemSettings', { teacherCanEdit: isChecked }, handleRes);
+                fetchFromGAS('updateSystemSettings', payload, handleRes);
             }
         }
 
-        // เริ่มส่วนที่แก้: ฟังก์ชันบันทึกสวิตช์ปิดเปิดการแสดงใบงานแก้ ร.
         function toggleRemedialVisibility() {
             const isChecked = document.getElementById('toggle-remedial-public').checked;
             globalSettings.showRemedialPublic = isChecked;
             
-            const handleRes = () => {
-                showToast(isChecked ? 'เปิดแสดงใบงานแก้ ร. ในหน้าแรกแล้ว' : 'ซ่อนใบงานแก้ ร. ในหน้าแรกแล้ว', isChecked ? 'green' : 'amber');
-                // เรียกให้ฟิลเตอร์หน้าแรกทำงานใหม่ทันทีหลังสลับสวิตช์ (ถ้าแอดมินเข้าไปดูหน้าแรกจะเห็นผลทันที)
-                applyPublicFilters();
+            const handleRes = (res) => {
+                if(res && res.success) {
+                    showToast(isChecked ? 'เปิดแสดงใบงานแก้ ร. ในหน้าแรกแล้ว' : 'ซ่อนใบงานแก้ ร. ในหน้าแรกแล้ว', isChecked ? 'green' : 'amber');
+                    applyPublicFilters();
+                } else {
+                    showToast('เกิดข้อผิดพลาดในการอัปเดตสถานะ', 'red');
+                    document.getElementById('toggle-remedial-public').checked = !isChecked;
+                    globalSettings.showRemedialPublic = !isChecked;
+                    applyPublicFilters();
+                }
+            };
+
+            const payload = {
+                teacherCanEdit: globalSettings.teacherCanEdit,
+                showRemedialPublic: isChecked
             };
 
             if (typeof google !== 'undefined' && google.script) {
-                google.script.run.withFailureHandler(gasErrorHandler).withSuccessHandler(handleRes).updateSystemSettings({ showRemedialPublic: isChecked });
+                google.script.run.withFailureHandler(gasErrorHandler).withSuccessHandler(handleRes).updateSystemSettings(payload);
             } else {
-                fetchFromGAS('updateSystemSettings', { showRemedialPublic: isChecked }, handleRes);
+                fetchFromGAS('updateSystemSettings', payload, handleRes);
             }
         }
-        // สิ้นสุดส่วนที่แก้
 
         function renderIDCards(cardsData) {
             try {
