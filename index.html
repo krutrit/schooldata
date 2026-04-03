@@ -11,7 +11,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f3f4f6; }
+        /* แก้ไขและปรับปรุง CSS สำหรับภาพพื้นหลัง ป้องกันเว็บขาด/ค้าง */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* สร้างภาพพื้นหลังแบบเบลอที่ลื่นไหลและไม่พังเมื่อเลื่อนจอ */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("https://cdn11.bigcommerce.com/s-hvyeu5c5mp/images/stencil/1280w/carousel/20/Junior-Great-Books-New-Digital-Classroom-2-1.jpg") no-repeat center center;
+            background-size: cover;
+            filter: blur(5px);
+            z-index: -1; /* ให้อยู่หลังสุด */
+        }
+
+        /* ซ่อน Scrollbar แต่ยังเลื่อนได้ */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -206,9 +230,11 @@
         <div id="super-admin-panel" class="mb-8 bg-amber-50 rounded-xl shadow-sm border border-amber-200 overflow-hidden hide-section">
             <div class="px-6 py-4 border-b border-amber-200 bg-amber-100 flex justify-between items-center"><h3 class="font-bold text-amber-900"><i class="fa-solid fa-screwdriver-wrench mr-2"></i> แผงควบคุมระบบ (Super Admin)</h3></div>
             <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-4 rounded-lg border border-gray-200 h-full">
-                    <h4 class="font-semibold text-gray-800 mb-2">สิทธิ์คุณครูทั่วไป (User)</h4>
-                    <p class="text-xs text-gray-500 mb-4">กำหนดสิทธิ์ให้ครูสามารถแก้ไขหรือลบเอกสารที่อัปโหลดไปแล้วของตัวเองได้หรือไม่</p>
+                
+                <div class="bg-white p-4 rounded-lg border border-gray-200 h-full flex flex-col gap-3">
+                    <h4 class="font-semibold text-gray-800 mb-1">สิทธิ์และการแสดงผล</h4>
+                    <p class="text-xs text-gray-500">จัดการสิทธิ์และหน้าต่างระบบ</p>
+                    
                     <div class="flex items-center justify-between bg-gray-50 p-3 rounded border">
                         <span class="text-sm font-medium text-gray-700">อนุญาตให้ครูแก้ไข/ลบไฟล์ของตัวเอง</span>
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
@@ -216,7 +242,19 @@
                             <label for="toggle-user-edit" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
                         </div>
                     </div>
+
+                    <!-- เริ่มส่วนที่แก้: สวิตช์ปิด-เปิด ใบงานแก้ ร. -->
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded border">
+                        <span class="text-sm font-medium text-gray-700">แสดงใบงานแก้ ร. ในหน้าแรก (Public)</span>
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle-remedial" id="toggle-remedial-public" onchange="toggleRemedialVisibility()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                            <label for="toggle-remedial-public" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
+                        </div>
+                    </div>
+                    <!-- สิ้นสุดส่วนที่แก้ -->
+
                 </div>
+
                 <div class="bg-white p-4 rounded-lg border border-gray-200 h-full flex flex-col">
                     <div class="flex justify-between items-center mb-2">
                         <h4 class="font-semibold text-gray-800">ฐานข้อมูลบุคลากร (Whitelist เลขบัตร)</h4>
@@ -259,6 +297,7 @@
         </div>
     </main>
 
+    <!-- Modals -->
     <div id="uploadModal" class="fixed inset-0 z-50 hide-section bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-indigo-50 sticky top-0 z-10"><h3 id="modal-title-doc" class="text-lg font-semibold text-indigo-900">อัปโหลดเอกสารใหม่</h3><button onclick="closeModal('uploadModal')" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-xmark text-xl"></i></button></div>
@@ -381,10 +420,6 @@
             .catch(error => { gasErrorHandler(error); });
         }
 
-        // ==========================================
-        // ส่วนที่แก้: เพิ่ม Fallback ให้ดึงค่าเริ่มต้น "ม.1" ถึง "ม.6" 
-        // หากใน Google Sheets ไม่ได้ตั้งค่าไว้
-        // ==========================================
         function parseHybridData(data) {
             try {
                 if (Array.isArray(data)) return data;
@@ -426,7 +461,7 @@
 
         let currentRole = 'public'; 
         let currentUserProfile = null;
-        let globalSettings = { teacherCanEdit: true, subjects: [], levels: [], years: [] };
+        let globalSettings = { teacherCanEdit: true, showRemedialPublic: true, subjects: [], levels: [], years: [] };
         let globalFilesList = []; 
         let adminReportsList = []; 
         let systemUsersList = [];
@@ -439,6 +474,7 @@
                 try {
                     if(settings) globalSettings = settings;
                     document.getElementById('toggle-user-edit').checked = (globalSettings.teacherCanEdit === true || String(globalSettings.teacherCanEdit) === 'true');
+                    document.getElementById('toggle-remedial-public').checked = (globalSettings.showRemedialPublic === true || String(globalSettings.showRemedialPublic) === 'true');
                     populateDropdowns(); 
                     checkSession();
                 } catch(e) { gasErrorHandler(e); }
@@ -451,14 +487,10 @@
             }
         };
 
-        // ==========================================
-        // ส่วนที่แก้: เพิ่มค่าระดับชั้นพื้นฐานเผื่อเกิด Error
-        // ==========================================
         function populateDropdowns() {
             const fYear = document.getElementById('filter-year');
             fYear.innerHTML = '<option value="">ทุกปีการศึกษา</option>';
             
-            // ตั้งค่า Array พื้นฐานกันเหนียว
             const defaultLevels = ["ม.1", "ม.2", "ม.3", "ม.4", "ม.5", "ม.6"];
             const levelsList = (globalSettings.levels && globalSettings.levels.length > 0) ? globalSettings.levels : defaultLevels;
             const yearsList = (globalSettings.years && globalSettings.years.length > 0) ? globalSettings.years : ["2567", "2568", "2569"];
@@ -494,7 +526,7 @@
             const handlePublicFiles = (res) => {
                 try {
                     globalFilesList = parseHybridData(res);
-                    renderPublicFiles(globalFilesList);
+                    applyPublicFilters();
                     document.getElementById('loading-overlay').classList.add('hide-section');
                     switchRole('public');
                 } catch(e) { gasErrorHandler(e); }
@@ -649,7 +681,7 @@
             const handleRes = res => {
                 try {
                     globalFilesList = parseHybridData(res);
-                    renderPublicFiles(globalFilesList);
+                    applyPublicFilters();
                 } catch(e) { gasErrorHandler(e); }
             };
 
@@ -663,7 +695,7 @@
         function renderPublicFiles(files) {
             const container = document.getElementById('public-grid-container');
             if(!files || files.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">ไม่พบเอกสารงานแก้ผลการเรียนตามที่ค้นหา</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">ไม่พบเอกสารตามที่ค้นหา</div>`;
                 return;
             }
             let html = '';
@@ -693,6 +725,7 @@
             container.innerHTML = html;
         }
 
+        // เริ่มส่วนที่แก้: ปรับให้ฟังก์ชันกรองสามาถกรองสวิตช์ปิด/เปิด "ใบงานแก้ผลการเรียน" ได้
         function applyPublicFilters() {
             const search = document.getElementById('filter-search').value.toLowerCase();
             const level = document.getElementById('filter-level').value;
@@ -700,6 +733,11 @@
             const year = document.getElementById('filter-year').value;
 
             let filtered = globalFilesList.filter(f => {
+                // ตรวจสอบสถานะการเปิด/ปิด "ใบงานแก้ผลการเรียน" จากการตั้งค่า
+                const isRemedial = f.type === 'ใบงานแก้ผลการเรียน';
+                const isShowRemedial = (globalSettings.showRemedialPublic === true || String(globalSettings.showRemedialPublic) === 'true');
+                if (isRemedial && !isShowRemedial) return false;
+
                 let matchSearch = f.name.toLowerCase().includes(search) || f.subject.toLowerCase().includes(search) || f.teacherName.toLowerCase().includes(search);
                 let matchLevel = level === "" || f.level === level;
                 let matchTerm = term === "" || f.term == term;
@@ -708,6 +746,7 @@
             });
             renderPublicFiles(filtered);
         }
+        // สิ้นสุดส่วนที่แก้
 
         function applyUserFilters() {
             const search = document.getElementById('user-filter-search').value.toLowerCase();
@@ -826,7 +865,6 @@
             container.innerHTML = html;
         }
 
-        // ---- แดชบอร์ดแอดมิน ----
         function renderAdminDashboard(data) {
             try {
                 document.getElementById('admin-stat-users').innerText = data.totalUsers;
@@ -865,7 +903,6 @@
             document.getElementById('admin-table-body').innerHTML = html;
         }
 
-        // ---- จัดการระบบผู้ใช้และบัญชี (Super Admin) ----
         function renderSystemUsers(usersData) {
             try {
                 const users = parseHybridData(usersData || []);
@@ -988,7 +1025,25 @@
             }
         }
 
-        // ---- จัดการเลขบัตร (Whitelist) ----
+        // เริ่มส่วนที่แก้: ฟังก์ชันบันทึกสวิตช์ปิดเปิดการแสดงใบงานแก้ ร.
+        function toggleRemedialVisibility() {
+            const isChecked = document.getElementById('toggle-remedial-public').checked;
+            globalSettings.showRemedialPublic = isChecked;
+            
+            const handleRes = () => {
+                showToast(isChecked ? 'เปิดแสดงใบงานแก้ ร. ในหน้าแรกแล้ว' : 'ซ่อนใบงานแก้ ร. ในหน้าแรกแล้ว', isChecked ? 'green' : 'amber');
+                // เรียกให้ฟิลเตอร์หน้าแรกทำงานใหม่ทันทีหลังสลับสวิตช์ (ถ้าแอดมินเข้าไปดูหน้าแรกจะเห็นผลทันที)
+                applyPublicFilters();
+            };
+
+            if (typeof google !== 'undefined' && google.script) {
+                google.script.run.withFailureHandler(gasErrorHandler).withSuccessHandler(handleRes).updateSystemSettings({ showRemedialPublic: isChecked });
+            } else {
+                fetchFromGAS('updateSystemSettings', { showRemedialPublic: isChecked }, handleRes);
+            }
+        }
+        // สิ้นสุดส่วนที่แก้
+
         function renderIDCards(cardsData) {
             try {
                 const cards = parseHybridData(cardsData || []);
@@ -1080,7 +1135,6 @@
             }
         }
 
-        // ---- จัดการฟอร์มไฟล์ ----
         function toggleRemedialFields() {
             const type = document.getElementById('doc-form-type').value;
             const fields = document.getElementById('remedial-fields');
